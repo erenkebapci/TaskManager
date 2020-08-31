@@ -1,0 +1,310 @@
+﻿@model IEnumerable<TaskManager.Models.Tasks>
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Scheduler</title>
+    <style>
+        .inwidth {
+            width: 100%;
+            box-sizing: border-box;
+            border: none;
+            border-bottom: 0.75px solid #aaa;
+            background-position: 10px 10px;
+            background-repeat: no-repeat;
+            padding: 12px 20px 12px 20px;
+            resize: none;
+        }
+
+            .inwidth:focus {
+                outline: none;
+                border-bottom-color: #666;
+            }
+
+        .pick {
+            margin: 13px 0;
+            padding: 0 15px;
+        }
+
+        .pick-span {
+            display: block;
+            font-size: 15px;
+            margin-right: 7px;
+            margin-bottom: 7px;
+        }
+
+        .pick > input {
+            color: #666;
+        }
+
+        textarea {
+            border: 1px solid #ddd;
+            outline: none;
+            border-radius: 5px;
+            margin: 15px 0;
+            resize: none !important;
+            width: 100%;
+            padding: 8px;
+            height: 100px;
+        }
+
+            textarea:focus {
+                border: 1px solid #aaa;
+                outline: none;
+            }
+    </style>
+
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.3.0/main.css" rel="stylesheet" />
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.3.0/main.min.js" type='text/javascript'></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.3.0/locales/tr.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js" integrity="sha512-rmZcZsyhe0/MAjquhTgiUcb4d9knaFc7b5xAfju483gbEXTkeJRUMIPk6s3ySZMYUHEcjKbjLjyddGWMrNEvZg==" crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+                var calendarEl = document.getElementById('calendar');
+                var calendar = new FullCalendar.Calendar(calendarEl, {
+                    headerToolbar:
+                    {
+                        start: 'timeGridDay,timeGridWeek,dayGridMonth', // will normally be on the left. if RTL, will be on the right
+                        center: 'title',
+                        end: 'today prev,next' // will normally be on the right. if RTL, will be on the left
+                    },
+                    nowIndicator: true,
+                    locale: 'tr',
+                    initialView: 'dayGridMonth',
+                    events: 'https://localhost:44377/api/tasks',
+                    dateClick: function (info) {
+                        $("#exampleModal").modal();
+                        $('#modalTitle').text('Create New Task');
+                                document.getElementById("taskStartDate").value = info.dateStr;
+                                document.getElementById("eventModal").style.display = "none";
+                                document.getElementById("eventFooter").style.display = "none";
+                                document.getElementById("updateModal").style.display = 'none';
+                                document.getElementById("updateFooter").style.display = "none";
+                                document.getElementById("createModal").style.display = "block";
+                                document.getElementById("createFooter").style.display = "block";
+                            },
+                    eventClick: function (info) {
+                        $("#exampleModal").modal();
+                        $('#modalTitle').text(info.event.title);
+                        $('#taskId').text(info.event.id);
+                        $('#eventStartTime').text(moment(info.event.start).format('DD-MM-YYYY kk.mm'));
+                        $('#eventEndTime').text(moment(info.event.end).format('DD-MM-YYYY kk.mm'));
+                        $('#eventDescription').text(info.event.extendedProps.description);
+                        document.getElementById("eventModal").style.display = "block";
+                        document.getElementById("eventFooter").style.display = "block";
+                        document.getElementById("updateModal").style.display = 'none';
+                        document.getElementById("createModal").style.display = "none";
+                        document.getElementById("createFooter").style.display = "none";
+                        document.getElementById("updateFooter").style.display = "none";
+                    }
+                });
+                calendar.render();
+            });
+
+            $('#taskStartDate').prop('disabled', true);
+            $('#taskStartTime').prop('disabled', true);
+            $('#taskEndDate').prop('disabled', true);
+            $('#taskEndTime').prop('disabled', true);
+
+            function getCookie(name) {
+                // Split cookie string and get all individual name=value pairs in an array
+                var cookieArr = document.cookie.split(";");
+
+                // Loop through the array elements
+                for (var i = 0; i < cookieArr.length; i++) {
+                    var cookiePair = cookieArr[i].split("=");
+
+                    /* Removing whitespace at the beginning of the cookie name
+                    and compare it with the given string */
+                    if (name == cookiePair[0].trim()) {
+                        // Decode the cookie value and return
+                        return decodeURIComponent(cookiePair[1]);
+                    }
+                }
+
+                // Return null if not found
+                return null;
+            }
+
+
+
+
+            function createTask() {
+                var startTime = document.getElementById('taskStartDate').value + " " + document.getElementById('taskStartTime').value
+                var endTime = document.getElementById('taskEndDate').value + " " + document.getElementById('taskEndTime').value
+
+                var Task = {
+                    title: document.getElementById('title').value,
+                    Description: document.getElementById('description').value,
+                    start: startTime,
+                    end: endTime,
+                    allDay: false,
+                    Visible: true,
+                }
+
+                fetch('api/tasks', {
+                    method: 'POST',
+                    credentials: "include",
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(Task)
+                })
+                    .then(response => response.json())
+                    .then(() => {
+                        alert('Task added successfully!')
+                        location.reload()
+                    })
+                    .catch(error => console.error('Unable to add item.', error));
+            }
+
+            function deleteTask() {
+                var taskID = document.getElementById('taskId').innerHTML
+                fetch('api/tasks/' + taskID,
+                    { method: 'DELETE' }
+                )
+                    .then(() => {
+                        alert("Task deleted successfully!")
+                        location.reload()
+                    })
+                    .catch(error => console.error('Unable to delete item.', error));
+            }
+
+            function updateButton() {
+                $("#exampleModal").modal();
+                document.getElementById("eventModal").style.display = "none";
+                document.getElementById("eventFooter").style.display = "none";
+                document.getElementById("updateModal").style.display = "block";
+                document.getElementById("updateFooter").style.display = "block";
+                document.getElementById("updateTitle").value = document.getElementById("modalTitle").textContent;
+                document.getElementById("updateDescription").value = document.getElementById("eventDescription").textContent;
+                document.getElementById("currentStartTime").innerText = document.getElementById("eventStartTime").innerText;
+                document.getElementById("currentEndTime").innerText = document.getElementById("eventEndTime").innerText;
+            }
+
+            function updateTask() {
+                var startTime = document.getElementById('updateStartDate').value + " " + document.getElementById('updateStartTime').value
+                var endTime = document.getElementById('updateEndDate').value + " " + document.getElementById('updateEndTime').value
+                var taskID = document.getElementById('taskId').innerHTML
+
+                var Task = {
+                    id: taskID,
+                    title: document.getElementById("updateTitle").value,
+                    Description: document.getElementById("updateDescription").value,
+                    start: startTime,
+                    end: endTime,
+                    allDay: false,
+                    Visible: true,
+                }
+
+                if (startTime == " " || endTime == " ") {
+
+                    alert("Please fill start time and end time")
+                }
+
+                else {
+
+                    fetch('api/tasks/' + taskID, {
+                        method: 'PUT',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(Task)
+                    })
+                        .then(response => response.json())
+                        .then(() => {
+                            alert('Task updated successfully!')
+                            location.reload()
+                        })
+                        .catch(error => console.error('Unable to add item.', error));
+                }
+            }
+    </script>
+</head>
+
+<body>
+    <div style="margin: 30px;">
+        <div id='calendar'></div>
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalTitle"></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body" id="createModal" style="display:none;">
+                        <input type="text" name="title" id="title" placeholder="Title" class="inwidth" />
+                        <div class="pick">
+                            <span class="pick-span">Start Date:</span>
+                            <input type="date" id="taskStartDate" value="" />
+                            <input type="time" id="taskStartTime" value="" />
+                        </div>
+                        <div class="pick">
+                            <span class="pick-span">End Date:</span>
+                            <input type="date" id="taskEndDate" value="" />
+                            <input type="time" id="taskEndTime" value="" />
+                        </div>
+                        <textarea name="description" placeholder="Description" id="description"></textarea>
+                        <span id="startTime" name="startTime" ; style="display:none;"></span>
+                        <span id="endTime" name="endTime" style="display:none;"></span>
+                    </div>
+                    <div class="modal-footer" id="createFooter" style="display:none;">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary" id="createTask" onclick="createTask()">Create</button>
+                    </div>
+
+                    <!-- Event Picker Footer -->
+                    <div class="modal-body" id="eventModal" style="display:none;">
+                        <span id="taskId" style="display:none;"></span>
+                        <p><b>Start Time:</b><span class="ml-1" id="eventStartTime"></span></p>
+                        <p><b>End Time:</b><span class="ml-1" id="eventEndTime"></span></p>
+                        <p><b>Description:</b><span class="ml-1" id="eventDescription"></span></p>
+                    </div>
+                    <div class="modal-footer" id="eventFooter" style="display:none;">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="updateButton()">Update</button>
+                        <button type="submit" class="btn btn-danger" onclick="deleteTask()">Delete</button>
+                    </div>
+
+                    <!-- Update Section -->
+                    <div class="modal-body" id="updateModal" style="display:none;">
+                        <input type="text" name="title" id="updateTitle" placeholder="Title" class="inwidth" />
+                        <div class="pick">
+                            <span class="pick-span">Current Start Date:</span>
+                            <span style="display:inline-block;" id="currentStartTime"></span>
+                            <span class="pick-span">Current End Date:</span>
+                            <span style="display:inline-block;" id="currentEndTime"></span>
+                        </div>
+                        <div class="pick">
+                            <span class="pick-span">Start Date:</span>
+                            <input type="date" id="updateStartDate" value="" />
+                            <input type="time" id="updateStartTime" value="" />
+                        </div>
+                        <div class="pick">
+                            <span class="pick-span">End Date:</span>
+                            <input type="date" id="updateEndDate" value="" />
+                            <input type="time" id="updateEndTime" value="" />
+                        </div>
+                        <textarea name="description" placeholder="Description" id="updateDescription"></textarea>
+                        <span id="startTime" name="startTime" ; style="display:none;"></span>
+                        <span id="endTime" name="endTime" style="display:none;"></span>
+                    </div>
+                    <div class="modal-footer" id="updateFooter" style="display:none;">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary" id="createTask" onclick="updateTask()">Update</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

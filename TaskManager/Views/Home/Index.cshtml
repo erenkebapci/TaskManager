@@ -3,6 +3,8 @@
 
 <html>
 <head>
+    <meta charset="utf-8"/>
+    <?xml version="1.0" encoding="UTF-8" ?>
     <title>Scheduler</title>
     <style>
         .inwidth {
@@ -65,17 +67,29 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
                 var calendarEl = document.getElementById('calendar');
-                var calendar = new FullCalendar.Calendar(calendarEl, {
-                    headerToolbar:
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                headerToolbar:
+                {
+                    start: 'timeGridDay,timeGridWeek,dayGridMonth', // will normally be on the left. if RTL, will be on the right
+                    center: 'title',
+                    end: 'today prev,next' // will normally be on the right. if RTL, will be on the left
+                },
+                nowIndicator: true,
+                locale: 'tr',
+                initialView: 'dayGridMonth',
+                events: [
+                    @foreach (var Task in Model)
                     {
-                        start: 'timeGridDay,timeGridWeek,dayGridMonth', // will normally be on the left. if RTL, will be on the right
-                        center: 'title',
-                        end: 'today prev,next' // will normally be on the right. if RTL, will be on the left
-                    },
-                    nowIndicator: true,
-                    locale: 'tr',
-                    initialView: 'dayGridMonth',
-                    events: 'https://localhost:44377/api/tasks',
+                        @:{
+                            @:id: '@Task.Id',
+                            @:title: '@Task.title',
+                            @:start: '@Task.start',
+                            @:end: '@Task.end',
+                            @:description: '@Task.Description',
+                        @:},
+                    }
+                ],
+
                     dateClick: function (info) {
                         $("#exampleModal").modal();
                         $('#modalTitle').text('Create New Task');
@@ -109,28 +123,6 @@
             $('#taskStartTime').prop('disabled', true);
             $('#taskEndDate').prop('disabled', true);
             $('#taskEndTime').prop('disabled', true);
-
-            function getCookie(name) {
-                // Split cookie string and get all individual name=value pairs in an array
-                var cookieArr = document.cookie.split(";");
-
-                // Loop through the array elements
-                for (var i = 0; i < cookieArr.length; i++) {
-                    var cookiePair = cookieArr[i].split("=");
-
-                    /* Removing whitespace at the beginning of the cookie name
-                    and compare it with the given string */
-                    if (name == cookiePair[0].trim()) {
-                        // Decode the cookie value and return
-                        return decodeURIComponent(cookiePair[1]);
-                    }
-                }
-
-                // Return null if not found
-                return null;
-            }
-
-
 
 
             function createTask() {

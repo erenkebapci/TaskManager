@@ -12933,11 +12933,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Njacsen\\source\\repos\\TaskManager\\TaskManager\\TaskManager.csproj",
+      "projectUniqueName": "C:\\Users\\Njacsen\\Desktop\\Yeni klasör (2)\\TaskManager\\TaskManager\\TaskManager.csproj",
       "projectName": "TaskManager",
-      "projectPath": "C:\\Users\\Njacsen\\source\\repos\\TaskManager\\TaskManager\\TaskManager.csproj",
+      "projectPath": "C:\\Users\\Njacsen\\Desktop\\Yeni klasör (2)\\TaskManager\\TaskManager\\TaskManager.csproj",
       "packagesPath": "C:\\Users\\Njacsen\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Njacsen\\source\\repos\\TaskManager\\TaskManager\\obj\\",
+      "outputPath": "C:\\Users\\Njacsen\\Desktop\\Yeni klasör (2)\\TaskManager\\TaskManager\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Njacsen\\AppData\\Roaming\\NuGet\\NuGet.Config",

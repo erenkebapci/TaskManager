@@ -21,6 +21,8 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using System.Text.Encodings.Web;
+using System.Text.Unicode;
 
 namespace TaskManager
 {
@@ -38,6 +40,8 @@ namespace TaskManager
             services.AddHttpContextAccessor();
 
             services.AddAutoMapper(typeof(Startup));
+
+            services.AddSingleton(HtmlEncoder.Create(allowedRanges: new[] { UnicodeRanges.BasicLatin, UnicodeRanges.Latin1Supplement, UnicodeRanges.LatinExtendedA }));
 
 
             services.Configure<TaskManagerDBSettings>(

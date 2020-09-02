@@ -20,8 +20,8 @@ namespace TaskManager.Controllers
 
         public IActionResult Index()
         {
-            return View();
-
+           var Tasks = this.taskService.GetAll();
+            return View(Tasks);
         }
 
         public  IActionResult SignUp()
